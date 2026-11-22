@@ -19,16 +19,10 @@ if [[ -z "${ADMIN_PASSWORD:-}" ]] && ! aws cloudformation describe-stacks --stac
 fi
 params=("AdminUser=${ADMIN_USER:-admin}" "AdminPassword=${ADMIN_PASSWORD:-}" "DomainName=${DOMAIN_NAME:-}" "CertificateArn=${CERTIFICATE_ARN:-}" "HostedZoneId=${HOSTED_ZONE_ID:-}")
 
-# Sans nouveau mot de passe, on réutilise la valeur existante.
+# Sans ADMIN_PASSWORD, l'infrastructure existe déjà : on publie seulement le contenu.
+# (Pour changer le mot de passe ou ajouter un domaine, relancer avec ADMIN_PASSWORD=...)
 if [[ -z "${ADMIN_PASSWORD:-}" ]]; then
-  echo "==> Mise à jour de l'infrastructure (mot de passe inchangé)"
-  aws cloudformation update-stack --stack-name "$STACK_NAME" --region "$REGION" \
-    --template-body file://infra/template.yaml \
-    --parameters ParameterKey=AdminUser,UsePreviousValue=true ParameterKey=AdminPassword,UsePreviousValue=true \
-      "ParameterKey=DomainName,ParameterValue=${DOMAIN_NAME:-}" \
-      "ParameterKey=CertificateArn,ParameterValue=${CERTIFICATE_ARN:-}" \
-      "ParameterKey=HostedZoneId,ParameterValue=${HOSTED_ZONE_ID:-}" 2>&1 | grep -v "No updates are to be performed" || true
-  aws cloudformation wait stack-update-complete --stack-name "$STACK_NAME" --region "$REGION" 2>/dev/null || true
+  echo "==> Infrastructure inchangée, publication du contenu"
 else
   echo "==> Déploiement de l'infrastructure"
   aws cloudformation deploy --stack-name "$STACK_NAME" --region "$REGION" \
