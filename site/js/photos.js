@@ -2,11 +2,9 @@
 // Pour ajouter une photo : déposez le fichier dans le dossier "photos/"
 // puis ajoutez une ligne ci-dessous (la première photo est affichée en grand).
 window.PHOTOS = [
-  { src: "photos/01.jpg", caption: "Vue sur la mer depuis l'appartement" },
-  { src: "photos/02.jpg", caption: "Le séjour" },
-  { src: "photos/03.jpg", caption: "La cuisine" },
-  { src: "photos/04.jpg", caption: "La chambre" },
-  { src: "photos/05.jpg", caption: "La salle de bain" },
-  { src: "photos/06.jpg", caption: "La digue de Coxyde" },
-  { src: "photos/07.jpg", caption: "La plage" }
+  { src: "photos/chambre-lit-double.jpg", caption: "Chambre avec lit double" },
+  { src: "photos/salle-de-douche.jpg", caption: "Salle de douche rénovée" },
+  { src: "photos/chambre-lits-jumeaux.jpg", caption: "Chambre avec deux lits simples" },
+  { src: "photos/chambre-enfants.jpg", caption: "Chambre avec lits superposés et lit gigogne" },
+  { src: "photos/garage.jpg", caption: "Garage privé" }
 ];
