@@ -4,145 +4,138 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <title>Contrats de location | Administration</title>
+  <title>Nouveau contrat | Las Palmas</title>
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
 <header class="top">
-  <h1>Convention de location</h1>
-  <p>Remplissez les informations du locataire, vérifiez l'aperçu, puis téléchargez le PDF.</p>
+  <h1>Nouveau contrat de location</h1>
+  <a href="#" id="logout" class="logout">Se déconnecter</a>
 </header>
 
 <main class="layout">
-  <form id="form" autocomplete="off">
+  <form id="form" autocomplete="off" novalidate>
 
-    <fieldset>
-      <legend>Locataire</legend>
-      <div class="row">
-        <label class="w-35">Civilité
-          <select name="civilite">
-            <option>Monsieur</option>
-            <option>Madame</option>
-            <option>Monsieur et Madame</option>
-            <option value="">(aucune)</option>
-          </select>
-        </label>
-        <label class="w-65">Nom et prénom
-          <input name="nom" placeholder="ex. Wera Jean" required>
-        </label>
+    <section class="step">
+      <h2><span>1</span> Le locataire</h2>
+      <div class="choices" role="radiogroup" aria-label="Civilité">
+        <label><input type="radio" name="civilite" value="Monsieur" checked><span>Monsieur</span></label>
+        <label><input type="radio" name="civilite" value="Madame"><span>Madame</span></label>
+        <label><input type="radio" name="civilite" value="Monsieur et Madame"><span>M. et Mme</span></label>
       </div>
-      <label>Adresse (facultatif, une ligne par ligne)
-        <textarea name="adresse" rows="2" placeholder="Rue, numéro&#10;Code postal Ville"></textarea>
+      <label>Nom et prénom
+        <input name="nom" placeholder="Wera Jean">
       </label>
-      <div class="row">
-        <label class="w-50">E-mail
-          <input name="email" type="email" placeholder="client@exemple.be">
-        </label>
-        <label class="w-50">Téléphone
-          <input name="tel" placeholder="0498 12 34 56">
-        </label>
-      </div>
-    </fieldset>
-
-    <fieldset>
-      <legend>Période</legend>
-      <div class="row">
-        <label class="w-65">Arrivée
-          <input name="debut" type="date" required>
-        </label>
-        <label class="w-35">Heure
-          <input name="heureDebut" value="12h00">
-        </label>
-      </div>
-      <div class="row">
-        <label class="w-65">Départ
-          <input name="fin" type="date" required>
-        </label>
-        <label class="w-35">Heure
-          <input name="heureFin" value="12h00">
-        </label>
-      </div>
-      <p class="hint" id="nuits"></p>
-    </fieldset>
-
-    <fieldset>
-      <legend>Prix</legend>
-      <div class="row">
-        <label class="w-50">Prix total, charges comprises (€)
-          <input name="prix" type="number" min="0" step="1" required>
-        </label>
-        <label class="w-50">Acompte (€)
-          <input name="acompte" type="number" min="0" step="1" value="250">
-        </label>
-      </div>
-      <div class="row">
-        <label class="w-50">Délai pour l'acompte (jours)
-          <input name="delaiAcompte" type="number" min="1" value="7">
-        </label>
-        <label class="w-50">Solde à payer (jours avant l'arrivée)
-          <input name="delaiSolde" type="number" min="1" value="15">
-        </label>
-      </div>
-      <p class="hint" id="solde"></p>
-    </fieldset>
-
-    <fieldset>
-      <legend>Signature</legend>
-      <div class="row">
-        <label class="w-50">Fait à
-          <input name="lieu" value="Aubel">
-        </label>
-        <label class="w-50">Le
-          <input name="dateDoc" type="date">
-        </label>
-      </div>
-    </fieldset>
-
-    <details>
-      <summary>Propriétaire, appartement et compte bancaire</summary>
-      <p class="hint">Ces informations sont mémorisées dans ce navigateur. Elles changent rarement.</p>
-      <label>Propriétaire
-        <input name="proprietaire" data-persist>
+      <label>E-mail
+        <input name="email" type="email" inputmode="email" placeholder="nom@exemple.be">
       </label>
-      <label>Adresse du propriétaire
-        <textarea name="proprioAdresse" rows="2" data-persist></textarea>
+      <label>Téléphone
+        <input name="tel" type="tel" placeholder="0498 12 34 56">
       </label>
-      <div class="row">
-        <label class="w-50">Téléphone
-          <input name="proprioTel" data-persist>
-        </label>
-        <label class="w-50">E-mail
-          <input name="proprioEmail" data-persist>
-        </label>
-      </div>
-      <label>Appartement (une ligne par ligne)
-        <textarea name="logement" rows="4" data-persist></textarea>
-      </label>
-      <div class="row">
-        <label class="w-65">IBAN
-          <input name="iban" data-persist>
-        </label>
-        <label class="w-35">BIC
-          <input name="bic" data-persist>
-        </label>
-      </div>
-      <button type="button" class="link" id="resetProprio">Remettre les valeurs d'origine</button>
-    </details>
-
-    <div class="actions">
-      <button type="button" class="btn" id="download">Télécharger le PDF</button>
-      <button type="button" class="btn btn-ghost" id="mail">Préparer l'e-mail au locataire</button>
-      <button type="button" class="btn btn-ghost" id="clear">Nouveau contrat</button>
-    </div>
-    <p class="hint" id="mailHint" hidden>Votre messagerie s'ouvre avec le texte prêt. N'oubliez pas de joindre le PDF que vous venez de télécharger.</p>
-
-    <section class="history">
-      <h2>Derniers contrats</h2>
-      <ul id="history"><li class="hint">Aucun contrat pour l'instant.</li></ul>
     </section>
+
+    <section class="step">
+      <h2><span>2</span> Les dates</h2>
+      <div class="row">
+        <label class="grow">Arrivée le
+          <input name="debut" type="date">
+        </label>
+        <label class="small">à
+          <input name="heureDebut" value="17h00">
+        </label>
+      </div>
+      <div class="row">
+        <label class="grow">Départ le
+          <input name="fin" type="date">
+        </label>
+        <label class="small">à
+          <input name="heureFin" value="11h00">
+        </label>
+      </div>
+      <p class="note" id="nuits"></p>
+    </section>
+
+    <section class="step">
+      <h2><span>3</span> Le prix</h2>
+      <div class="row">
+        <label class="grow">Prix total
+          <span class="euro"><input name="prix" type="number" inputmode="numeric" min="0" step="1" placeholder="565"></span>
+        </label>
+        <label class="grow">Acompte
+          <span class="euro"><input name="acompte" type="number" inputmode="numeric" min="0" step="1" value="250"></span>
+        </label>
+      </div>
+      <p class="note" id="solde"></p>
+    </section>
+
+    <section class="step final">
+      <h2><span>4</span> Le contrat</h2>
+      <div class="message" id="message" hidden></div>
+      <button type="button" class="btn" id="download">⬇️ Télécharger le contrat</button>
+      <button type="button" class="btn btn-second" id="mail">✉️ Écrire l'e-mail au locataire</button>
+      <p class="note" id="mailHint" hidden>Votre messagerie va s'ouvrir avec le message déjà écrit. Ajoutez en pièce jointe le contrat que vous venez de télécharger (il se trouve dans « Téléchargements »).</p>
+      <button type="button" class="link" id="clear">Effacer et commencer un nouveau contrat</button>
+    </section>
+
+    <section class="step history">
+      <h2>Contrats déjà faits</h2>
+      <ul id="history"><li class="note">Aucun pour l'instant.</li></ul>
+    </section>
+
+    <details class="settings">
+      <summary>Réglages (rarement utilisés)</summary>
+      <div class="settings-body">
+        <label>Adresse du locataire (facultatif)
+          <textarea name="adresse" rows="2"></textarea>
+        </label>
+        <div class="row">
+          <label class="grow">Jours pour payer l'acompte
+            <input name="delaiAcompte" type="number" min="1" value="7">
+          </label>
+          <label class="grow">Solde : jours avant l'arrivée
+            <input name="delaiSolde" type="number" min="1" value="15">
+          </label>
+        </div>
+        <div class="row">
+          <label class="grow">Contrat fait à
+            <input name="lieu" value="Aubel">
+          </label>
+          <label class="grow">Le
+            <input name="dateDoc" type="date">
+          </label>
+        </div>
+        <label>Propriétaire
+          <input name="proprietaire">
+        </label>
+        <label>Adresse du propriétaire
+          <textarea name="proprioAdresse" rows="2"></textarea>
+        </label>
+        <div class="row">
+          <label class="grow">Téléphone
+            <input name="proprioTel">
+          </label>
+          <label class="grow">E-mail
+            <input name="proprioEmail">
+          </label>
+        </div>
+        <label>Appartement
+          <textarea name="logement" rows="4"></textarea>
+        </label>
+        <div class="row">
+          <label class="grow">IBAN
+            <input name="iban">
+          </label>
+          <label class="small">BIC
+            <input name="bic">
+          </label>
+        </div>
+        <button type="button" class="link" id="resetProprio">Remettre les valeurs d'origine</button>
+      </div>
+    </details>
   </form>
 
   <section class="preview">
+    <h2>Voici le contrat</h2>
     <iframe id="preview" title="Aperçu du contrat"></iframe>
   </section>
 </main>

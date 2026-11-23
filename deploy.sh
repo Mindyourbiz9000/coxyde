@@ -5,7 +5,7 @@
 #   ./deploy.sh                 # met à jour le contenu du site
 #   ADMIN_PASSWORD=xxx ./deploy.sh   # premier déploiement ou changement de mot de passe
 #
-# Variables optionnelles : STACK_NAME, AWS_REGION, ADMIN_USER,
+# Variables optionnelles : STACK_NAME, AWS_REGION,
 #   DOMAIN_NAME, CERTIFICATE_ARN (us-east-1), HOSTED_ZONE_ID
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -17,7 +17,7 @@ if [[ -z "${ADMIN_PASSWORD:-}" ]] && ! aws cloudformation describe-stacks --stac
   echo "Premier déploiement : définissez ADMIN_PASSWORD (ex. ADMIN_PASSWORD=monmotdepasse ./deploy.sh)" >&2
   exit 1
 fi
-params=("AdminUser=${ADMIN_USER:-admin}" "AdminPassword=${ADMIN_PASSWORD:-}" "DomainName=${DOMAIN_NAME:-}" "CertificateArn=${CERTIFICATE_ARN:-}" "HostedZoneId=${HOSTED_ZONE_ID:-}")
+params=("AdminPassword=${ADMIN_PASSWORD:-}" "DomainName=${DOMAIN_NAME:-}" "CertificateArn=${CERTIFICATE_ARN:-}" "HostedZoneId=${HOSTED_ZONE_ID:-}")
 
 # Sans ADMIN_PASSWORD, l'infrastructure existe déjà : on publie seulement le contenu.
 # (Pour changer le mot de passe ou ajouter un domaine, relancer avec ADMIN_PASSWORD=...)

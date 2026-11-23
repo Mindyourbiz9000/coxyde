@@ -51,7 +51,8 @@ DOMAIN_NAME=www.exemple.be CERTIFICATE_ARN=arn:aws:acm:us-east-1:... HOSTED_ZONE
 ```
 
 Le script affiche à la fin l'adresse du site et de la page admin.
-Identifiant par défaut : `admin` (modifiable avec `ADMIN_USER`).
+La page admin demande seulement le mot de passe (pas d'identifiant). Il est mémorisé un an dans le navigateur.
+Éviter les guillemets et barres obliques inverses dans le mot de passe.
 
 ## Utiliser la page admin
 

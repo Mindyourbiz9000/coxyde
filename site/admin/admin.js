@@ -8,11 +8,14 @@
     iban: "BE87 7320 1153 7694",
     bic: "CREGBEBB"
   };
+  var CHAMPS_CONTRAT = ["civilite", "nom", "adresse", "email", "tel", "debut", "heureDebut", "fin", "heureFin",
+    "prix", "acompte", "delaiAcompte", "delaiSolde", "lieu", "dateDoc"];
   var CLE_PROPRIO = "coxyde.proprio";
   var CLE_HISTO = "coxyde.historique";
 
   var form = document.getElementById("form");
   var iframe = document.getElementById("preview");
+  var message = document.getElementById("message");
   var jsPDF = window.jspdf.jsPDF;
   var urlApercu = null;
 
@@ -29,11 +32,25 @@
 
   function donnees() {
     var d = {};
-    Array.prototype.forEach.call(form.elements, function (el) { if (el.name) d[el.name] = el.value; });
+    Array.prototype.forEach.call(form.elements, function (el) {
+      if (!el.name) return;
+      if (el.type === "radio") { if (el.checked) d[el.name] = el.value; return; }
+      d[el.name] = el.value;
+    });
+    if (d.civilite === undefined) d.civilite = "";
     return d;
   }
   function remplir(d) {
-    Object.keys(d).forEach(function (k) { if (form.elements[k]) form.elements[k].value = d[k]; });
+    Object.keys(d).forEach(function (k) {
+      var el = form.elements[k];
+      if (el && d[k] !== undefined) el.value = d[k];
+    });
+  }
+
+  function afficherMessage(texte, type) {
+    message.textContent = texte;
+    message.className = "message " + type;
+    message.hidden = !texte;
   }
 
   // Valeurs initiales
@@ -42,10 +59,15 @@
 
   function infos(d) {
     var n = Contrat.nuits(d.debut, d.fin);
-    document.getElementById("nuits").textContent =
-      n === null ? "" : n > 0 ? n + " nuit" + (n > 1 ? "s" : "") : "Attention : le départ doit être après l'arrivée.";
+    var el = document.getElementById("nuits");
+    el.className = "note strong";
+    el.textContent = n === null ? "" : n > 0
+      ? "Du " + Contrat.dateLongue(d.debut) + " au " + Contrat.dateLongue(d.fin) + " : " + n + " nuit" + (n > 1 ? "s" : "")
+      : "Attention : le départ doit être après l'arrivée.";
     var solde = (+d.prix || 0) - (+d.acompte || 0);
-    document.getElementById("solde").textContent = d.prix ? "Solde à payer : " + Contrat.montant(solde) : "";
+    var s = document.getElementById("solde");
+    s.className = "note strong";
+    s.textContent = d.prix ? "Il restera " + Contrat.montant(solde) + " à payer après l'acompte." : "";
   }
 
   var timer;
@@ -63,43 +85,61 @@
       iframe.src = urlApercu + "#toolbar=0&navpanes=0&view=FitH";
     }, 350);
   }
-  form.addEventListener("input", rafraichir);
+  form.addEventListener("input", function (e) {
+    if (e.target.classList) e.target.classList.remove("invalid");
+    afficherMessage("", "");
+    rafraichir();
+  });
   form.addEventListener("change", rafraichir);
 
   function valider(d) {
     var manque = [];
-    if (!d.nom.trim()) manque.push("le nom du locataire");
-    if (!d.debut) manque.push("la date d'arrivée");
-    if (!d.fin) manque.push("la date de départ");
-    if (!d.prix) manque.push("le prix");
-    if (manque.length) { alert("Il manque " + manque.join(", ") + "."); return false; }
-    if (Contrat.nuits(d.debut, d.fin) <= 0) { alert("La date de départ doit être après la date d'arrivée."); return false; }
+    function verifier(nom, libelle) {
+      if (!String(d[nom] || "").trim()) { manque.push(libelle); form.elements[nom].classList.add("invalid"); }
+    }
+    verifier("nom", "le nom");
+    verifier("debut", "la date d'arrivée");
+    verifier("fin", "la date de départ");
+    verifier("prix", "le prix");
+    if (manque.length) {
+      afficherMessage("Il manque " + manque.join(", ") + ". Les cases en rouge sont à remplir.", "err");
+      return false;
+    }
+    if (Contrat.nuits(d.debut, d.fin) <= 0) {
+      form.elements.fin.classList.add("invalid");
+      afficherMessage("La date de départ doit être après la date d'arrivée.", "err");
+      return false;
+    }
     return true;
   }
 
-  // Historique (dans ce navigateur)
+  // Contrats déjà faits (gardés dans ce navigateur)
   function historique() { return lire(CLE_HISTO, []); }
   function afficherHistorique() {
     var ul = document.getElementById("history");
     var h = historique();
     ul.innerHTML = "";
-    if (!h.length) { ul.innerHTML = '<li class="hint">Aucun contrat pour l\'instant.</li>'; return; }
+    if (!h.length) { ul.innerHTML = '<li class="note">Aucun pour l\'instant.</li>'; return; }
     h.forEach(function (c, i) {
       var li = document.createElement("li");
       var span = document.createElement("span");
-      span.textContent = c.nom + " · " + Contrat.dateSimple(c.debut) + " → " + Contrat.dateSimple(c.fin) + " · " + Contrat.montant(c.prix);
+      span.textContent = c.nom + ", du " + Contrat.dateSimple(c.debut) + " au " + Contrat.dateSimple(c.fin);
       var b = document.createElement("button");
       b.type = "button";
       b.textContent = "Rouvrir";
-      b.addEventListener("click", function () { remplir(historique()[i]); rafraichir(); window.scrollTo(0, 0); });
+      b.addEventListener("click", function () {
+        remplir(historique()[i]);
+        afficherMessage("", "");
+        rafraichir();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
       li.appendChild(span); li.appendChild(b); ul.appendChild(li);
     });
   }
   function memoriser(d) {
     var h = historique().filter(function (c) { return !(c.nom === d.nom && c.debut === d.debut && c.fin === d.fin); });
     var c = {};
-    ["civilite", "nom", "adresse", "email", "tel", "debut", "heureDebut", "fin", "heureFin",
-     "prix", "acompte", "delaiAcompte", "delaiSolde", "lieu", "dateDoc"].forEach(function (k) { c[k] = d[k]; });
+    CHAMPS_CONTRAT.forEach(function (k) { c[k] = d[k]; });
     h.unshift(c);
     ecrire(CLE_HISTO, h.slice(0, 30));
     afficherHistorique();
@@ -108,8 +148,10 @@
   document.getElementById("download").addEventListener("click", function () {
     var d = donnees();
     if (!valider(d)) return;
-    Contrat.generer(jsPDF, d).save(Contrat.nomFichier(d));
+    var nom = Contrat.nomFichier(d);
+    Contrat.generer(jsPDF, d).save(nom);
     memoriser(d);
+    afficherMessage("C'est fait ! Le contrat « " + nom + " » est dans vos Téléchargements.", "ok");
   });
 
   document.getElementById("mail").addEventListener("click", function () {
@@ -131,15 +173,31 @@
   });
 
   document.getElementById("clear").addEventListener("click", function () {
-    ["nom", "adresse", "email", "tel", "debut", "fin", "prix"].forEach(function (k) { form.elements[k].value = ""; });
+    if (!confirm("Effacer ce contrat et en commencer un nouveau ?")) return;
+    ["nom", "adresse", "email", "tel", "debut", "fin", "prix"].forEach(function (k) {
+      form.elements[k].value = "";
+      form.elements[k].classList.remove("invalid");
+    });
     form.elements.civilite.value = "Monsieur";
+    form.elements.acompte.value = "250";
+    form.elements.heureDebut.value = "17h00";
+    form.elements.heureFin.value = "11h00";
     form.elements.dateDoc.value = aujourdhui();
+    document.getElementById("mailHint").hidden = true;
+    afficherMessage("", "");
     rafraichir();
+    window.scrollTo({ top: 0, behavior: "smooth" });
   });
 
   document.getElementById("resetProprio").addEventListener("click", function () {
     remplir(DEFAUTS_PROPRIO);
     rafraichir();
+  });
+
+  document.getElementById("logout").addEventListener("click", function (e) {
+    e.preventDefault();
+    document.cookie = "coxyde_admin=; Path=/; Max-Age=0";
+    location.href = "/connexion/";
   });
 
   afficherHistorique();

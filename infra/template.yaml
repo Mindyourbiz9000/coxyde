@@ -2,10 +2,6 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: Site de l'appartement Las Palmas a Coxyde (S3 prive + CloudFront + page admin protegee)
 
 Parameters:
-  AdminUser:
-    Type: String
-    Default: admin
-    Description: Identifiant de la page /admin
   AdminPassword:
     Type: String
     NoEcho: true
@@ -55,41 +51,45 @@ Resources:
         SigningBehavior: always
         SigningProtocol: sigv4
 
-  # Protege /admin par mot de passe et sert index.html pour les dossiers.
+  # Protege /admin par mot de passe (cookie pose par /connexion/) et sert index.html pour les dossiers.
   RouterFunction:
     Type: AWS::CloudFront::Function
     Properties:
       Name: !Sub "${AWS::StackName}-router"
       AutoPublish: true
       FunctionConfig:
-        Comment: Basic auth sur /admin + index.html
+        Comment: Mot de passe sur /admin + index.html
         Runtime: cloudfront-js-2.0
-      FunctionCode: !Sub
-        - |
-          function handler(event) {
-            var req = event.request;
-            var uri = req.uri;
-            if (uri === "/admin" || uri.indexOf("/admin/") === 0) {
-              var h = req.headers.authorization;
-              if (!h || h.value !== "Basic ${Auth}") {
-                return {
-                  statusCode: 401,
-                  statusDescription: "Unauthorized",
-                  headers: { "www-authenticate": { value: 'Basic realm="Coxyde admin", charset="UTF-8"' } }
-                };
-              }
+      FunctionCode: !Sub |
+        var MOT_DE_PASSE = "${AdminPassword}";
+        function handler(event) {
+          var req = event.request;
+          var uri = req.uri;
+          if (uri === "/admin" || uri.indexOf("/admin/") === 0) {
+            var c = req.cookies["coxyde_admin"];
+            var ok = false;
+            if (c) { try { ok = decodeURIComponent(c.value) === MOT_DE_PASSE; } catch (e) {} }
+            if (!ok) {
+              return {
+                statusCode: 302,
+                statusDescription: "Found",
+                headers: {
+                  location: { value: c ? "/connexion/?erreur=1" : "/connexion/" },
+                  "cache-control": { value: "no-store" }
+                }
+              };
             }
-            if (uri === "/admin") {
-              return { statusCode: 301, statusDescription: "Moved", headers: { location: { value: "/admin/" } } };
-            }
-            if (uri.endsWith("/")) {
-              req.uri = uri + "index.html";
-            } else if (uri.split("/").pop().indexOf(".") === -1) {
-              req.uri = uri + "/index.html";
-            }
-            return req;
           }
-        - Auth: !Base64 { "Fn::Sub": "${AdminUser}:${AdminPassword}" }
+          if (uri === "/admin") {
+            return { statusCode: 301, statusDescription: "Moved", headers: { location: { value: "/admin/" } } };
+          }
+          if (uri.endsWith("/")) {
+            req.uri = uri + "index.html";
+          } else if (uri.split("/").pop().indexOf(".") === -1) {
+            req.uri = uri + "/index.html";
+          }
+          return req;
+        }
 
   Distribution:
     Type: AWS::CloudFront::Distribution

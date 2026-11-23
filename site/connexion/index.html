@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Connexion | Las Palmas</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 20px; color: #102530;
+      background: linear-gradient(180deg, #0f3a52, #1b6b88 60%, #6fb2c3);
+    }
+    form { background: #fff; border-radius: 20px; padding: 36px 30px; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,.25); text-align: center; }
+    h1 { font-size: 1.6rem; margin: 0 0 8px; color: #0b2a3c; }
+    p { margin: 0 0 24px; color: #5a6f78; }
+    input { width: 100%; font-size: 1.5rem; padding: 16px; border: 2px solid #9fbcc6; border-radius: 12px; text-align: center; letter-spacing: .2em; }
+    input:focus { outline: none; border-color: #12506b; box-shadow: 0 0 0 4px rgba(18,80,107,.15); }
+    button { width: 100%; margin-top: 18px; font-size: 1.3rem; font-weight: 700; padding: 16px; border: 0; border-radius: 12px; background: #12506b; color: #fff; cursor: pointer; }
+    button:hover { background: #0b2a3c; }
+    .erreur { display: none; margin: 0 0 18px; padding: 12px; border-radius: 10px; background: #fdecea; color: #a12a1c; font-weight: 600; }
+    .erreur.visible { display: block; }
+  </style>
+</head>
+<body>
+  <form id="f">
+    <h1>Contrats de location</h1>
+    <p>Tapez votre mot de passe</p>
+    <div class="erreur" id="erreur">Mot de passe incorrect. Réessayez.</div>
+    <input id="mdp" type="password" autocomplete="current-password" autofocus aria-label="Mot de passe">
+    <button type="submit">Entrer</button>
+  </form>
+  <script>
+    if (/[?&]erreur=1/.test(location.search)) document.getElementById("erreur").classList.add("visible");
+    document.getElementById("f").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var v = document.getElementById("mdp").value.trim();
+      if (!v) return;
+      document.cookie = "coxyde_admin=" + encodeURIComponent(v) + "; Path=/; Max-Age=31536000; SameSite=Strict" +
+        (location.protocol === "https:" ? "; Secure" : "");
+      location.href = "/admin/";
+    });
+  </script>
+</body>
+</html>
