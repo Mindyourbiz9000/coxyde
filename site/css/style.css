@@ -40,15 +40,18 @@ a { color: var(--sea); }
 /* En-tête */
 .hero {
   position: relative; color: #fff; overflow: hidden;
+  min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column;
   background:
-    linear-gradient(180deg, rgba(8,36,52,.82) 0%, rgba(12,58,80,.55) 55%, rgba(20,90,115,.45) 100%),
-    url("../photos/sejour-vue-mer.jpg") center 60% / cover no-repeat,
+    linear-gradient(90deg, rgba(6,28,40,.78) 0%, rgba(6,28,40,.5) 38%, rgba(6,28,40,0) 68%),
+    linear-gradient(180deg, rgba(6,28,40,.4) 0%, rgba(6,28,40,0) 20%, rgba(6,28,40,0) 45%, rgba(6,28,40,.6) 100%),
+    url("../photos/sejour-vue-mer.jpg") center 55% / cover no-repeat,
     linear-gradient(180deg, #0f3a52 0%, #1b6b88 55%, #6fb2c3 100%);
 }
-.topbar { display: flex; justify-content: flex-start; align-items: center; max-width: 1080px; margin: 0 auto; padding: 22px 24px; }
+.hero h1, .hero .lead, .hero .eyebrow, .brand { text-shadow: 0 2px 18px rgba(0,0,0,.45); }
+.topbar { width: 100%; display: flex; justify-content: flex-start; align-items: center; max-width: 1080px; margin: 0 auto; padding: 22px 24px; }
 .brand { font-family: "Fraunces", serif; font-size: 1.35rem; }
 .brand small { font-family: "Outfit", sans-serif; font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; opacity: .7; margin-left: 6px; }
-.hero-inner { position: relative; z-index: 2; max-width: 1080px; margin: 0 auto; padding: 60px 24px 170px; }
+.hero-inner { position: relative; z-index: 2; max-width: 1080px; width: 100%; margin: auto auto 0; padding: 60px 24px 150px; }
 .eyebrow { text-transform: uppercase; letter-spacing: .2em; font-size: .75rem; font-weight: 600; color: var(--lagoon); margin-bottom: 1rem; }
 .lead { font-size: clamp(1.1rem, 2vw, 1.3rem); font-weight: 300; max-width: 560px; opacity: .95; }
 .facts { list-style: none; padding: 0; margin: 30px 0 0; display: flex; flex-wrap: wrap; gap: 10px; }
@@ -113,10 +116,15 @@ a { color: var(--sea); }
   .two, .infos { grid-template-columns: 1fr; gap: 32px; }
   .gallery { grid-template-columns: 1fr 1fr; grid-auto-rows: 170px; }
   .block { padding: 60px 0; }
-  .hero-inner { padding: 30px 24px 140px; }
+  .hero-inner { padding: 30px 24px 120px; }
 }
 @media (max-width: 520px) {
   body { font-size: 16px; }
+  .hero {
+    background:
+      linear-gradient(180deg, rgba(6,28,40,.35) 0%, rgba(6,28,40,.05) 25%, rgba(6,28,40,.55) 50%, rgba(6,28,40,.85) 100%),
+      url("../photos/sejour-vue-mer.jpg") 72% 50% / cover no-repeat, #0f3a52;
+  }
   .gallery { grid-template-columns: 1fr; grid-auto-rows: 230px; }
   .gallery figure:first-child, .gallery figure.wide { grid-column: auto; grid-row: auto; }
   .actions .btn { width: 100%; }
