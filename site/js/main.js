@@ -8,6 +8,7 @@
 
   photos.forEach(function (p) {
     var fig = document.createElement("figure");
+    if (p.wide) fig.className = "wide";
     var img = new Image();
     img.loading = "lazy";
     img.alt = p.caption || "";
