@@ -154,6 +154,36 @@
     afficherMessage("C'est fait ! Le contrat « " + nom + " » est dans vos Téléchargements.", "ok");
   });
 
+  function copierTexte(texte, html) {
+    if (navigator.clipboard && window.ClipboardItem && window.isSecureContext) {
+      return navigator.clipboard.write([new ClipboardItem({
+        "text/plain": new Blob([texte], { type: "text/plain" }),
+        "text/html": new Blob([html], { type: "text/html" })
+      })]).catch(function () { return navigator.clipboard.writeText(texte); });
+    }
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(texte);
+    return new Promise(function (ok, ko) {
+      var t = document.createElement("textarea");
+      t.value = texte; t.setAttribute("readonly", ""); t.style.position = "fixed"; t.style.opacity = "0";
+      document.body.appendChild(t); t.select(); t.setSelectionRange(0, texte.length);
+      var reussi = false;
+      try { reussi = document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(t);
+      reussi ? ok() : ko();
+    });
+  }
+
+  document.getElementById("copy").addEventListener("click", function () {
+    var d = donnees();
+    if (!valider(d)) return;
+    copierTexte(Contrat.texte(d), Contrat.html(d)).then(function () {
+      memoriser(d);
+      afficherMessage("Le texte du contrat est copié. Dans votre e-mail ou votre message, faites « Coller ».", "ok");
+    }, function () {
+      afficherMessage("La copie n'a pas fonctionné sur cet appareil. Utilisez plutôt « Télécharger le contrat ».", "err");
+    });
+  });
+
   document.getElementById("mail").addEventListener("click", function () {
     var d = donnees();
     if (!valider(d)) return;

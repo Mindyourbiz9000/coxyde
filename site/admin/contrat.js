@@ -132,7 +132,58 @@
     return doc;
   }
 
+  // Version texte du contrat (même contenu que le PDF), pour le presse-papier.
+  // Renvoie une liste de paragraphes ; chaque paragraphe est une liste de lignes,
+  // une ligne commençant par "\t" est en retrait.
+  function paragraphes(d) {
+    var P = [];
+    P.push(["CONVENTION DE LOCATION"]);
+    P.push(["Entre les soussignés :"]);
+    P.push(["D’une part, le propriétaire : " + (d.proprietaire || "")]
+      .concat(lignes(d.proprioAdresse).map(function (l) { return "\t" + l; }))
+      .concat(d.proprioTel ? ["\t" + d.proprioTel] : [])
+      .concat(d.proprioEmail ? ["\t" + d.proprioEmail] : []));
+    P.push(["Et d’autre part, le locataire dénommé :", "\t" + ((d.civilite ? d.civilite + " " : "") + (d.nom || "…")).trim()]
+      .concat(lignes(d.adresse).map(function (l) { return "\t" + l; }))
+      .concat(d.email ? ["\t" + d.email] : [])
+      .concat(d.tel ? ["\t" + d.tel] : []));
+    P.push(["Le propriétaire déclare louer au second un appartement meublé situé à"]
+      .concat(lignes(d.logement).map(function (l) { return "\t" + l; })));
+    P.push([
+      "La période de location prend cours le " + dateLongue(d.debut) + " à " + (d.heureDebut || "12h00"),
+      "\tpour se terminer le " + dateLongue(d.fin) + " à " + (d.heureFin || "12h00"),
+      "Le prix de location pour cette période, charges comprises, s’élève à " + montant(d.prix)
+    ]);
+    P.push(["Pour garantir la réservation, le locataire verse au maximum " + (d.delaiAcompte || 7) +
+      " jours à dater de ce mail, la somme de " + montant(d.acompte) + "."]);
+    var solde = (+d.prix || 0) - (+d.acompte || 0);
+    var texteSolde = d.prix && solde > 0 ? "Le solde de " + montant(solde) : "Le solde";
+    P.push([texteSolde + " sera versé au plus tard " + (d.delaiSolde || 15) +
+      " jours avant la date de début de séjour sur le compte " + (d.iban || "…") +
+      (d.bic ? " BIC/" + d.bic : "") + " en indiquant en référence le nom et la période réservée."]);
+    P.push(["Fait à " + (d.lieu || "…") + ", le " + dateSimple(d.dateDoc)]);
+    P.push(["Pour accord, le locataire", "Pour accord, le propriétaire, " + nomSignature(d.proprietaire)]);
+    return P;
+  }
+  function texte(d) {
+    return paragraphes(d).map(function (p) {
+      return p.map(function (l) { return l.replace(/^\t/, "      "); }).join("\n");
+    }).join("\n\n");
+  }
+  function html(d) {
+    function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+    return '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5">' +
+      paragraphes(d).map(function (p, i) {
+        return "<p>" + p.map(function (l) {
+          var t = esc(l.replace(/^\t/, ""));
+          if (i === 0) t = "<b>" + t + "</b>";
+          return /^\t/.test(l) ? '<span style="padding-left:40px">' + t + "</span>" : t;
+        }).join("<br>") + "</p>";
+      }).join("") + "</div>";
+  }
+
   var api = {
+    texte: texte, html: html,
     generer: generer, nomFichier: nomFichier, dateLongue: dateLongue,
     dateSimple: dateSimple, nuits: nuits, montant: montant, nomSignature: nomSignature
   };
