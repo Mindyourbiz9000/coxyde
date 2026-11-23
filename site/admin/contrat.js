@@ -173,13 +173,17 @@
   function html(d) {
     function esc(s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
     return '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5">' +
-      paragraphes(d).map(function (p, i) {
+      paragraphes(d).slice(0, -1).map(function (p, i) {
         return "<p>" + p.map(function (l) {
           var t = esc(l.replace(/^\t/, ""));
           if (i === 0) t = "<b>" + t + "</b>";
           return /^\t/.test(l) ? '<span style="padding-left:40px">' + t + "</span>" : t;
         }).join("<br>") + "</p>";
-      }).join("") + "</div>";
+      }).join("") +
+      '<table style="border-collapse:collapse;font-size:14px;margin-top:8px"><tr>' +
+      '<td style="width:220px;padding:0 0 0 40px;vertical-align:top">Pour accord<br>Le locataire</td>' +
+      '<td style="width:220px;vertical-align:top">Pour accord<br>Le propriétaire<br>' + esc(nomSignature(d.proprietaire)) + '</td>' +
+      "</tr></table></div>";
   }
 
   var api = {
