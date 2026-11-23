@@ -42,7 +42,7 @@ a { color: var(--sea); }
   position: relative; color: #fff; overflow: hidden;
   background: linear-gradient(180deg, #0f3a52 0%, #1b6b88 55%, #6fb2c3 100%);
 }
-.topbar { display: flex; justify-content: space-between; align-items: center; max-width: 1080px; margin: 0 auto; padding: 22px 24px; }
+.topbar { display: flex; justify-content: flex-start; align-items: center; max-width: 1080px; margin: 0 auto; padding: 22px 24px; }
 .brand { font-family: "Fraunces", serif; font-size: 1.35rem; }
 .brand small { font-family: "Outfit", sans-serif; font-size: .75rem; letter-spacing: .2em; text-transform: uppercase; opacity: .7; margin-left: 6px; }
 .hero-inner { position: relative; z-index: 2; max-width: 1080px; margin: 0 auto; padding: 60px 24px 170px; }
@@ -79,7 +79,7 @@ a { color: var(--sea); }
 .gallery figure.missing { display: none; }
 
 /* Bon à savoir */
-.infos { margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 28px 48px; }
+.infos { margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px 48px; }
 .infos div { border-left: 3px solid var(--lagoon); padding-left: 18px; }
 .infos dt { font-weight: 600; color: var(--deep); margin-bottom: 4px; }
 .infos dd { margin: 0; color: var(--muted); }
@@ -90,7 +90,7 @@ a { color: var(--sea); }
 .contact p { color: #cfe4ea; }
 .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin: 28px 0 40px; }
 .address a { color: var(--lagoon); }
-.footer { font-size: .85rem; margin-top: 50px; color: #7fa3ae !important; }
+.footer { font-size: .85rem; margin-top: 40px; color: #7fa3ae !important; }
 
 /* Visionneuse */
 .lightbox { position: fixed; inset: 0; background: rgba(6,32,46,.95); z-index: 100; display: flex; align-items: center; justify-content: center; }
